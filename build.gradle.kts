@@ -23,7 +23,6 @@ korge {
 
 	targetJvm()
 	targetJs()
-	targetDesktop()
 }
 
 kotlin {
