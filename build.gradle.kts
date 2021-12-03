@@ -1,6 +1,7 @@
 import com.soywiz.korge.gradle.*
 
 plugins {
+	kotlin("multiplatform") version "1.6.0"
 	id("org.jmailen.kotlinter") version "3.6.0"
 }
 
@@ -22,4 +23,18 @@ korge {
 	targetJvm()
 	targetJs()
 	targetDesktop()
+}
+
+kotlin {
+	sourceSets {
+		commonMain {
+			repositories {
+				mavenLocal()
+			}
+
+			dependencies {
+				implementation("com.github.cheatank:common:1.0.0-SNAPSHOT")
+			}
+		}
+	}
 }
