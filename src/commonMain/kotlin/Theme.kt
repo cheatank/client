@@ -18,4 +18,9 @@ object Theme {
      * 文字色
      */
     val Text = Colors.BLACK
+
+    /**
+     * エラーの文字色
+     */
+    val ErrorText = Colors.RED
 }
