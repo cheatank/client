@@ -1,9 +1,9 @@
 import com.soywiz.korge.gradle.*
 
 plugins {
-	kotlin("multiplatform") version "1.6.0"
-	id("org.jmailen.kotlinter") version "3.7.0"
-	id("com.github.ben-manes.versions") version "0.39.0"
+	kotlin("multiplatform") version "1.6.10"
+	id("org.jmailen.kotlinter") version "3.8.0"
+	id("com.github.ben-manes.versions") version "0.41.0"
 }
 
 buildscript {
@@ -12,7 +12,7 @@ buildscript {
 		google()
 	}
 	dependencies {
-		classpath("com.soywiz.korlibs.korge.plugins:korge-gradle-plugin:2.4.8")
+		classpath("com.soywiz.korlibs.korge.plugins:korge-gradle-plugin:2.4.10")
 	}
 }
 
