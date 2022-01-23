@@ -12,6 +12,7 @@ import com.soywiz.korge.view.centerOnStage
 import com.soywiz.korge.view.text
 import com.soywiz.korio.async.launchImmediately
 import exception.FailReceivePacketException
+import exception.FailReceivePacketException.Companion.failReceivePacketException
 import exception.MismatchPacketVersionException
 import httpClient
 import injects.ErrorMessage
@@ -33,7 +34,7 @@ class WaitingScene(private val address: String) : Scene() {
                 httpClient.webSocket(address) {
                     checkPacketVersion()
                     val configData = joinLobby()
-                    sceneContainer.changeTo<GameScene>(configData)
+                    sceneContainer.changeTo<GameScene>(this, configData)
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -54,7 +55,7 @@ class WaitingScene(private val address: String) : Scene() {
         val packetData = packet?.data
         when {
             packetData !is IntData -> {
-                throw FailReceivePacketException()
+                throw failReceivePacketException(PacketType.SendVersion, packet)
             }
             packetData.int != PacketVersion -> {
                 throw MismatchPacketVersionException()
@@ -69,7 +70,7 @@ class WaitingScene(private val address: String) : Scene() {
         sendPacket(PacketType.JoinQueue, EmptyPacketData)
         val packet = receivePacket(PacketType.StartGame)
         val packetData = packet?.data
-        if (packetData !is ConfigData) throw FailReceivePacketException()
+        if (packetData !is ConfigData) throw failReceivePacketException(PacketType.StartGame, packet)
         return packetData
     }
 }
