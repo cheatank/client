@@ -8,12 +8,12 @@ import com.github.cheatank.common.data.PacketData
  * パケットの取得に失敗した
  */
 class FailReceivePacketException(
-    message: String = "Failed to receive the version packet."
+    message: String = "Failed to receive the packet."
 ) : IllegalStateException(message) {
     companion object {
         fun <T : PacketData, U : PacketData> failReceivePacketException(expected: PacketType<T>, actual: Packet<U>?): FailReceivePacketException {
             return FailReceivePacketException(
-                "Failed to receive the version packet: (expected: ${expected::class.simpleName}, actual: ${actual?.let { it.type::class.simpleName }})"
+                "Failed to receive the packet: (expected: ${expected::class.simpleName}, actual: ${actual?.let { it.type::class.simpleName }})"
             )
         }
     }
