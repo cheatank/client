@@ -10,9 +10,12 @@ import com.soywiz.korge.view.Container
 import com.soywiz.korge.view.centerOnStage
 import com.soywiz.korge.view.text
 import com.soywiz.korio.async.launchImmediately
+import exception.FailReceivePacketException
+import exception.MismatchPacketVersionException
 import httpClient
 import injects.ErrorMessage
 import io.ktor.client.features.websocket.webSocket
+import io.ktor.http.cio.websocket.DefaultWebSocketSession
 import util.receivePacket
 import util.sendPacket
 
@@ -27,19 +30,8 @@ class WaitingScene(private val address: String) : Scene() {
         launchImmediately {
             try {
                 httpClient.webSocket(address) {
-                    outgoing.sendPacket(PacketType.GetVersion, EmptyPacketData)
-                    val packet = incoming.receivePacket(PacketType.SendVersion)
-                    val packetData = packet?.data
-                    if (packetData is IntData) {
-                        if (packetData.int != PacketVersion) {
-                            throw IllegalStateException("Packet version do not match.")
-                        } else {
-                            outgoing.sendPacket(PacketType.JoinQueue, EmptyPacketData)
-                            incoming.receivePacket(PacketType.StartGame)
-                        }
-                    } else {
-                        throw IllegalStateException("Failed to receive the version packet.")
-                    }
+                    checkPacketVersion()
+                    joinLobby()
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
@@ -47,5 +39,33 @@ class WaitingScene(private val address: String) : Scene() {
             }
             sceneContainer.changeTo<GameScene>()
         }
+    }
+
+    /**
+     * クライアントとサーバーのパケットバージョンが同じであるか調べる
+     *
+     * @exception [MismatchPacketVersionException] パケットバージョンが一致しない
+     * @exception [FailReceivePacketException] パケットの受け取りに失敗した
+     */
+    private suspend fun DefaultWebSocketSession.checkPacketVersion() {
+        outgoing.sendPacket(PacketType.GetVersion, EmptyPacketData)
+        val packet = incoming.receivePacket(PacketType.SendVersion)
+        val packetData = packet?.data
+        when {
+            packetData !is IntData -> {
+                throw FailReceivePacketException()
+            }
+            packetData.int != PacketVersion -> {
+                throw MismatchPacketVersionException()
+            }
+        }
+    }
+
+    /**
+     * ロビーに参加する
+     */
+    private suspend fun DefaultWebSocketSession.joinLobby() {
+        outgoing.sendPacket(PacketType.JoinQueue, EmptyPacketData)
+        incoming.receivePacket(PacketType.StartGame)
     }
 }
