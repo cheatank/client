@@ -33,6 +33,9 @@ class WaitingScene(private val address: String) : Scene() {
                     if (packetData is IntData) {
                         if (packetData.int != PacketVersion) {
                             throw IllegalStateException("Packet version do not match.")
+                        } else {
+                            outgoing.sendPacket(PacketType.JoinQueue, EmptyPacketData)
+                            incoming.receivePacket(PacketType.StartGame)
                         }
                     } else {
                         throw IllegalStateException("Failed to receive the version packet.")
