@@ -13,8 +13,8 @@ object SceneModule : Module() {
     override val bgcolor = Theme.BackGround
 
     override suspend fun AsyncInjector.configure() {
-        mapPrototype { TitleScene() }
-        mapPrototype { WaitingScene() }
+        mapPrototype { TitleScene(getOrNull()) }
+        mapPrototype { WaitingScene(get()) }
         mapPrototype { GameScene() }
     }
 }
