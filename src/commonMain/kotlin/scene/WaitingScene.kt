@@ -3,6 +3,7 @@ package scene
 import Theme
 import com.github.cheatank.common.PacketType
 import com.github.cheatank.common.PacketVersion
+import com.github.cheatank.common.data.ConfigData
 import com.github.cheatank.common.data.EmptyPacketData
 import com.github.cheatank.common.data.IntData
 import com.soywiz.korge.scene.Scene
@@ -31,13 +32,13 @@ class WaitingScene(private val address: String) : Scene() {
             try {
                 httpClient.webSocket(address) {
                     checkPacketVersion()
-                    joinLobby()
+                    val configData = joinLobby()
+                    sceneContainer.changeTo<GameScene>(configData)
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
                 sceneContainer.changeTo<TitleScene>(ErrorMessage(ex))
             }
-            sceneContainer.changeTo<GameScene>()
         }
     }
 
@@ -64,8 +65,11 @@ class WaitingScene(private val address: String) : Scene() {
     /**
      * ロビーに参加する
      */
-    private suspend fun DefaultWebSocketSession.joinLobby() {
+    private suspend fun DefaultWebSocketSession.joinLobby(): ConfigData {
         outgoing.sendPacket(PacketType.JoinQueue, EmptyPacketData)
-        incoming.receivePacket(PacketType.StartGame)
+        val packet = incoming.receivePacket(PacketType.StartGame)
+        val packetData = packet?.data
+        if (packetData !is ConfigData) throw FailReceivePacketException()
+        return packetData
     }
 }
