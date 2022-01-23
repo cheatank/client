@@ -49,8 +49,8 @@ class WaitingScene(private val address: String) : Scene() {
      * @exception [FailReceivePacketException] パケットの受け取りに失敗した
      */
     private suspend fun DefaultWebSocketSession.checkPacketVersion() {
-        outgoing.sendPacket(PacketType.GetVersion, EmptyPacketData)
-        val packet = incoming.receivePacket(PacketType.SendVersion)
+        sendPacket(PacketType.GetVersion, EmptyPacketData)
+        val packet = receivePacket(PacketType.SendVersion)
         val packetData = packet?.data
         when {
             packetData !is IntData -> {
@@ -66,8 +66,8 @@ class WaitingScene(private val address: String) : Scene() {
      * ロビーに参加する
      */
     private suspend fun DefaultWebSocketSession.joinLobby(): ConfigData {
-        outgoing.sendPacket(PacketType.JoinQueue, EmptyPacketData)
-        val packet = incoming.receivePacket(PacketType.StartGame)
+        sendPacket(PacketType.JoinQueue, EmptyPacketData)
+        val packet = receivePacket(PacketType.StartGame)
         val packetData = packet?.data
         if (packetData !is ConfigData) throw FailReceivePacketException()
         return packetData
