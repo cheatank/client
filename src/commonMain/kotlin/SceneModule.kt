@@ -15,6 +15,6 @@ object SceneModule : Module() {
     override suspend fun AsyncInjector.configure() {
         mapPrototype { TitleScene(getOrNull()) }
         mapPrototype { WaitingScene(get()) }
-        mapPrototype { GameScene(get()) }
+        mapPrototype { GameScene(get(), get()) }
     }
 }
