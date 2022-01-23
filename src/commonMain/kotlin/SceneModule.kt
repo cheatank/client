@@ -2,7 +2,6 @@ import com.soywiz.korge.scene.Module
 import com.soywiz.korinject.AsyncInjector
 import scene.GameScene
 import scene.TitleScene
-import scene.WaitingScene
 
 /**
  * 画面一覧
@@ -14,7 +13,6 @@ object SceneModule : Module() {
 
     override suspend fun AsyncInjector.configure() {
         mapPrototype { TitleScene(getOrNull()) }
-        mapPrototype { WaitingScene(get()) }
-        mapPrototype { GameScene(get(), get()) }
+        mapPrototype { GameScene(get()) }
     }
 }

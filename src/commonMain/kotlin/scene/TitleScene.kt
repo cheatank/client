@@ -44,7 +44,7 @@ class TitleScene(private val errorMessage: ErrorMessage?) : Scene() {
                 centerXOnStage()
                 alignTopToBottomOf(logo, 32.0)
                 onClick {
-                    launchImmediately { sceneContainer.changeTo<WaitingScene>(address) }
+                    launchImmediately { sceneContainer.changeTo<GameScene>(address) }
                 }
                 text("Play", 32.0, Theme.Text).centerOn(this)
             }
