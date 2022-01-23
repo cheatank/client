@@ -34,7 +34,17 @@ kotlin {
 
 			dependencies {
 				implementation("com.github.cheatank:common:1.0.0-SNAPSHOT")
+				implementation("io.ktor:ktor-client-core:1.6.7")
+			}
+		}
+		val jvmMain by getting {
+			dependencies {
 				implementation("io.ktor:ktor-client-cio:1.6.7")
+			}
+		}
+		val jsMain by getting {
+			dependencies {
+				implementation("io.ktor:ktor-client-js:1.6.7")
 			}
 		}
 	}
