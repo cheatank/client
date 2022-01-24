@@ -16,7 +16,7 @@ import com.soywiz.korio.async.ObservableProperty
 import com.soywiz.korio.async.launchImmediately
 import exception.FailReceivePacketException
 import exception.MismatchPacketVersionException
-import injects.ErrorMessage
+import injects.Message
 import io.ktor.client.HttpClient
 import io.ktor.client.features.websocket.WebSockets
 import io.ktor.client.features.websocket.webSocket
@@ -85,9 +85,9 @@ class GameScene(private val address: String) : Scene() {
             } finally {
                 httpClient.close()
                 if (exception != null) {
-                    sceneContainer.changeTo<TitleScene>(ErrorMessage(exception))
+                    sceneContainer.changeTo<TitleScene>(Message(exception))
                 } else {
-                    sceneContainer.changeTo<TitleScene>()
+                    sceneContainer.changeTo<TitleScene>(Message("The game is over."))
                 }
             }
         }

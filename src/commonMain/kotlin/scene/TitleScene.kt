@@ -7,6 +7,7 @@ import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.ui.BoxUISkin
 import com.soywiz.korge.ui.uiTextInput
 import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.addTo
 import com.soywiz.korge.view.alignTopToBottomOf
 import com.soywiz.korge.view.centerOn
 import com.soywiz.korge.view.centerOnStage
@@ -19,18 +20,19 @@ import com.soywiz.korge.view.text
 import com.soywiz.korim.format.readBitmap
 import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.file.std.resourcesVfs
-import injects.ErrorMessage
+import injects.Message
+import injects.Message.Companion.Text
 
 /**
  * タイトル画面
  *
- * @property errorMessage エラーメッセージ
+ * @property message エラーメッセージ
  */
-class TitleScene(private val errorMessage: ErrorMessage?) : Scene() {
+class TitleScene(private val message: Message?) : Scene() {
     @OptIn(KorgeExperimental::class)
     override suspend fun Container.sceneInit() {
         var address = "ws://localhost:8080"
-        text(errorMessage?.message.orEmpty(), 12.0, Theme.ErrorText).centerXOnStage()
+        message.Text(12.0).addTo(this).centerXOnStage()
         container {
             val title = text("CheaTank", 48.0, Theme.Text) {
                 centerXOnStage()
