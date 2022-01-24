@@ -16,8 +16,9 @@ import com.soywiz.korio.async.ObservableProperty
 import com.soywiz.korio.async.launchImmediately
 import exception.FailReceivePacketException
 import exception.MismatchPacketVersionException
-import httpClient
 import injects.ErrorMessage
+import io.ktor.client.HttpClient
+import io.ktor.client.features.websocket.WebSockets
 import io.ktor.client.features.websocket.webSocket
 import io.ktor.http.cio.websocket.DefaultWebSocketSession
 import io.ktor.http.cio.websocket.Frame
@@ -51,34 +52,43 @@ class GameScene(private val address: String) : Scene() {
             }
         }
         launchImmediately {
+            val httpClient = HttpClient {
+                install(WebSockets)
+            }
+            var exception: Exception? = null
             try {
                 httpClient.webSocket(address) {
                     checkPacketVersion()
                     val configData = joinLobby()
                     isWait.value = false
                     time.value = configData.timeLimit
-                    while (true) {
-                        for (frame in incoming) {
-                            when (frame) {
-                                is Frame.Binary -> {
-                                    val packet = frame.readRawPacket() ?: continue
-                                    when (packet.id) {
-                                        PacketType.Countdown.id -> {
-                                            val data = packet.toPacket(PacketType.Countdown)?.data as? ShortData ?: continue
-                                            time.value = data.short
-                                        }
+                    for (frame in incoming) {
+                        when (frame) {
+                            is Frame.Binary -> {
+                                val packet = frame.readRawPacket() ?: continue
+                                when (packet.id) {
+                                    PacketType.Countdown.id -> {
+                                        val data = packet.toPacket(PacketType.Countdown)?.data as? ShortData ?: continue
+                                        time.value = data.short
                                     }
                                 }
-                                is Frame.Close -> {
-                                    close()
-                                }
+                            }
+                            is Frame.Close -> {
+                                close()
                             }
                         }
                     }
                 }
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                sceneContainer.changeTo<TitleScene>(ErrorMessage(ex))
+                exception = ex
+            } finally {
+                httpClient.close()
+                if (exception != null) {
+                    sceneContainer.changeTo<TitleScene>(ErrorMessage(exception))
+                } else {
+                    sceneContainer.changeTo<TitleScene>()
+                }
             }
         }
     }
