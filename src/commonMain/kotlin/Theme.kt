@@ -10,11 +10,6 @@ object Theme {
     val BackGround = Colors.WHITE
 
     /**
-     * ボタンの背景
-     */
-    val ButtonBackGround = Colors.DARKGRAY
-
-    /**
      * 文字色
      */
     val Text = Colors.BLACK

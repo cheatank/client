@@ -42,7 +42,7 @@ class TitleScene(private val message: Message?) : Scene() {
                 centerXOnStage()
                 alignTopToBottomOf(title, 32.0)
             }
-            val startButton = roundRect(192.0, 64.0, 5.0, fill = Theme.ButtonBackGround) {
+            val startButton = roundRect(192.0, 64.0, 5.0, fill = Theme.BackGround, stroke = Theme.Text, strokeThickness = 1.0) {
                 centerXOnStage()
                 alignTopToBottomOf(logo, 32.0)
                 onClick {
@@ -59,7 +59,7 @@ class TitleScene(private val message: Message?) : Scene() {
                 )
             ) {
                 centerXOnStage()
-                alignTopToBottomOf(startButton, 16.0)
+                alignTopToBottomOf(startButton, 32.0)
                 onTextUpdated {
                     address = it.text
                 }
