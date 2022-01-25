@@ -17,6 +17,7 @@ import com.soywiz.korge.view.roundRect
 import com.soywiz.korge.view.text
 import com.soywiz.korge.view.tween.hide
 import com.soywiz.korge.view.tween.show
+import com.soywiz.korim.text.TextAlignment
 import com.soywiz.korio.async.ObservableProperty
 import com.soywiz.korio.async.launchImmediately
 import exception.FailReceivePacketException
@@ -28,6 +29,7 @@ import io.ktor.client.features.websocket.webSocket
 import io.ktor.http.cio.websocket.DefaultWebSocketSession
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.close
+import kotlinx.coroutines.delay
 import util.readRawPacket
 import util.receivePacket
 import util.sendPacket
@@ -39,7 +41,8 @@ class GameScene(private val address: String) : Scene() {
     override suspend fun Container.sceneInit() {
         val isWait = ObservableProperty(true)
         val time = ObservableProperty<Short>(-1)
-        text("Waiting...", 48.0, Theme.Text) {
+        val waitTitle = text("Waiting...", 48.0, Theme.Text) {
+            alignment = TextAlignment.MIDDLE_CENTER
             centerOnStage()
         }
         val timer = text("", 36.0, Theme.Text) {
@@ -73,6 +76,7 @@ class GameScene(private val address: String) : Scene() {
                     val configData = joinLobby()
                     isWait.value = false
                     time.value = configData.timeLimit
+                    waitTitle.text = "Draw"
                     for (frame in incoming) {
                         when (frame) {
                             is Frame.Binary -> {
@@ -95,10 +99,17 @@ class GameScene(private val address: String) : Scene() {
                 exception = ex
             } finally {
                 httpClient.close()
-                if (exception != null) {
-                    sceneContainer.changeTo<TitleScene>(Message(exception))
-                } else {
-                    sceneContainer.changeTo<TitleScene>(Message("The game is over."))
+                if (isWait.value.not()) {
+                    time.value = -1
+                    isWait.value = true
+                    launchImmediately {
+                        delay(3000)
+                        if (exception != null) {
+                            sceneContainer.changeTo<TitleScene>(Message(exception))
+                        } else {
+                            sceneContainer.changeTo<TitleScene>()
+                        }
+                    }
                 }
             }
         }
