@@ -106,10 +106,12 @@ class GameScene(private val address: String, private val cheat: CheatMode) : Sce
                                     }
                                     PacketType.UpdateLocation.id -> {
                                         val (id, x, y) = packet.toPacket(PacketType.UpdateLocation)?.data as? LocationData ?: continue
+                                        if (id == selfId) {
+                                            selfX.value = x
+                                            selfY.value = y
+                                        }
                                         val player = players.getOrPut(id) {
                                             if (id == selfId) {
-                                                selfX.value = x
-                                                selfY.value = y
                                                 roundRect(50, 100, 0, fill = Theme.ErrorText) {
                                                     keys {
                                                         down(Key.W) {
