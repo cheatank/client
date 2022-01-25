@@ -6,13 +6,19 @@ import com.github.cheatank.common.PacketVersion
 import com.github.cheatank.common.data.EmptyPacketData
 import com.github.cheatank.common.data.GameData
 import com.github.cheatank.common.data.IntData
+import com.github.cheatank.common.data.LocationData
+import com.github.cheatank.common.data.SelfLocationData
 import com.github.cheatank.common.data.ShortData
 import com.soywiz.klock.seconds
+import com.soywiz.korev.Key
+import com.soywiz.korge.input.keys
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.RoundRect
 import com.soywiz.korge.view.alignTopToBottomOf
 import com.soywiz.korge.view.centerOnStage
 import com.soywiz.korge.view.centerXOnStage
+import com.soywiz.korge.view.position
 import com.soywiz.korge.view.roundRect
 import com.soywiz.korge.view.text
 import com.soywiz.korge.view.tween.hide
@@ -46,6 +52,7 @@ class GameScene(private val address: String) : Scene() {
     override suspend fun Container.sceneInit() {
         val isWait = ObservableProperty(true)
         val time = ObservableProperty<Short>(-1)
+        val players = mutableMapOf<Short, RoundRect>()
         val waitTitle = text("Waiting...", 48.0, Theme.Text) {
             alignment = TextAlignment.MIDDLE_CENTER
             centerOnStage()
@@ -91,6 +98,38 @@ class GameScene(private val address: String) : Scene() {
                                         val data = packet.toPacket(PacketType.Countdown)?.data as? ShortData ?: continue
                                         time.value = data.short
                                     }
+                                    PacketType.UpdateLocation.id -> {
+                                        val (id, x, y) = packet.toPacket(PacketType.UpdateLocation)?.data as? LocationData ?: continue
+                                        val player = players.getOrPut(id) {
+                                            if (id == this@GameScene.id) {
+                                                roundRect(50, 100, 0, fill = Theme.ErrorText) {
+                                                    keys {
+                                                        down(Key.W) {
+                                                            this@roundRect.y -= 5
+                                                        }
+                                                        down(Key.A) {
+                                                            this@roundRect.x -= 5
+                                                        }
+                                                        down(Key.S) {
+                                                            this@roundRect.y += 5
+                                                        }
+                                                        down(Key.D) {
+                                                            this@roundRect.x += 5
+                                                        }
+                                                    }
+                                                    launchImmediately {
+                                                        while (isWait.value.not()) {
+                                                            delay(50)
+                                                            sendPacket(PacketType.UpdateSelfLocation, SelfLocationData(this@roundRect.x.toInt(), this@roundRect.y.toInt(), 0))
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                roundRect(50, 100, 0, fill = Theme.Text)
+                                            }
+                                        }
+                                        player.position(x, y)
+                                    }
                                     PacketType.EndGame.id -> {
                                         val data = packet.toPacket(PacketType.EndGame)?.data as? ShortData ?: continue
                                         waitTitle.text = when (data.short) {
@@ -114,6 +153,7 @@ class GameScene(private val address: String) : Scene() {
                 httpClient.close()
                 if (isWait.value.not()) {
                     time.value = -1
+                    players.values.forEach { it.alpha = 0.0 }
                     isWait.value = true
                     launchImmediately {
                         delay(3000)
