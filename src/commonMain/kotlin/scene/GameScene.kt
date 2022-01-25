@@ -44,11 +44,6 @@ import util.sendPacket
  * ゲーム画面
  */
 class GameScene(private val address: String) : Scene() {
-    /**
-     * 自分のid
-     */
-    private var id: Short = -1
-
     override suspend fun Container.sceneInit() {
         val isWait = ObservableProperty(true)
         val time = ObservableProperty<Short>(-1)
@@ -87,7 +82,7 @@ class GameScene(private val address: String) : Scene() {
                     checkPacketVersion()
                     val gameData = joinLobby()
                     isWait.value = false
-                    id = gameData.id
+                    val selfId = gameData.id
                     time.value = gameData.timeLimit
                     for (frame in incoming) {
                         when (frame) {
@@ -101,7 +96,7 @@ class GameScene(private val address: String) : Scene() {
                                     PacketType.UpdateLocation.id -> {
                                         val (id, x, y) = packet.toPacket(PacketType.UpdateLocation)?.data as? LocationData ?: continue
                                         val player = players.getOrPut(id) {
-                                            if (id == this@GameScene.id) {
+                                            if (id == selfId) {
                                                 roundRect(50, 100, 0, fill = Theme.ErrorText) {
                                                     keys {
                                                         down(Key.W) {
@@ -134,7 +129,7 @@ class GameScene(private val address: String) : Scene() {
                                         val data = packet.toPacket(PacketType.EndGame)?.data as? ShortData ?: continue
                                         waitTitle.text = when (data.short) {
                                             (-1).toShort() -> "Draw"
-                                            id -> "You Win"
+                                            selfId -> "You Win"
                                             else -> "You Lose"
                                         }
                                     }
