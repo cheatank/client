@@ -12,6 +12,7 @@ import com.github.cheatank.common.data.ShortData
 import com.soywiz.klock.seconds
 import com.soywiz.korev.Key
 import com.soywiz.korge.input.keys
+import com.soywiz.korge.input.onClick
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.Container
 import com.soywiz.korge.view.RoundRect
@@ -73,6 +74,13 @@ class GameScene(private val address: String, private val cheat: CheatMode) : Sce
                         show(0.0.seconds)
                     }
                 }
+            }
+        }
+        if (cheat.isEnable) {
+            onClick {
+                val pos = it.currentPosStage
+                selfX.value = pos.x.toInt()
+                selfY.value = pos.y.toInt()
             }
         }
         launchImmediately {
