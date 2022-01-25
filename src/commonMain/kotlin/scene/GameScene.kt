@@ -3,8 +3,8 @@ package scene
 import Theme
 import com.github.cheatank.common.PacketType
 import com.github.cheatank.common.PacketVersion
-import com.github.cheatank.common.data.ConfigData
 import com.github.cheatank.common.data.EmptyPacketData
+import com.github.cheatank.common.data.GameData
 import com.github.cheatank.common.data.IntData
 import com.github.cheatank.common.data.ShortData
 import com.soywiz.klock.seconds
@@ -38,6 +38,11 @@ import util.sendPacket
  * ゲーム画面
  */
 class GameScene(private val address: String) : Scene() {
+    /**
+     * 自分のid
+     */
+    private var id: Short = -1
+
     override suspend fun Container.sceneInit() {
         val isWait = ObservableProperty(true)
         val time = ObservableProperty<Short>(-1)
@@ -73,9 +78,10 @@ class GameScene(private val address: String) : Scene() {
             try {
                 httpClient.webSocket(address) {
                     checkPacketVersion()
-                    val configData = joinLobby()
+                    val gameData = joinLobby()
                     isWait.value = false
-                    time.value = configData.timeLimit
+                    id = gameData.id
+                    time.value = gameData.timeLimit
                     waitTitle.text = "Draw"
                     for (frame in incoming) {
                         when (frame) {
@@ -138,11 +144,11 @@ class GameScene(private val address: String) : Scene() {
     /**
      * ロビーに参加する
      */
-    private suspend fun DefaultWebSocketSession.joinLobby(): ConfigData {
+    private suspend fun DefaultWebSocketSession.joinLobby(): GameData {
         sendPacket(PacketType.JoinQueue, EmptyPacketData)
         val packet = receivePacket(PacketType.StartGame)
         val packetData = packet?.data
-        if (packetData !is ConfigData) throw FailReceivePacketException.failReceivePacketException(
+        if (packetData !is GameData) throw FailReceivePacketException.failReceivePacketException(
             PacketType.StartGame,
             packet
         )
