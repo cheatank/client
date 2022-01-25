@@ -46,6 +46,8 @@ import util.sendPacket
  */
 class GameScene(private val address: String, private val cheat: CheatMode) : Scene() {
     override suspend fun Container.sceneInit() {
+        val selfX = ObservableProperty(0)
+        val selfY = ObservableProperty(0)
         val isWait = ObservableProperty(true)
         val time = ObservableProperty<Short>(-1)
         val players = mutableMapOf<Short, RoundRect>()
@@ -98,25 +100,33 @@ class GameScene(private val address: String, private val cheat: CheatMode) : Sce
                                         val (id, x, y) = packet.toPacket(PacketType.UpdateLocation)?.data as? LocationData ?: continue
                                         val player = players.getOrPut(id) {
                                             if (id == selfId) {
+                                                selfX.value = x
+                                                selfY.value = y
                                                 roundRect(50, 100, 0, fill = Theme.ErrorText) {
                                                     keys {
                                                         down(Key.W) {
-                                                            this@roundRect.y -= 5
+                                                            selfY.value -= 5
                                                         }
                                                         down(Key.A) {
-                                                            this@roundRect.x -= 5
+                                                            selfX.value -= 5
                                                         }
                                                         down(Key.S) {
-                                                            this@roundRect.y += 5
+                                                            selfY.value += 5
                                                         }
                                                         down(Key.D) {
-                                                            this@roundRect.x += 5
+                                                            selfX.value += 5
                                                         }
+                                                    }
+                                                    selfX.observe {
+                                                        this.x = it.toDouble()
+                                                    }
+                                                    selfY.observe {
+                                                        this.y = it.toDouble()
                                                     }
                                                     launchImmediately {
                                                         while (isWait.value.not()) {
                                                             delay(50)
-                                                            sendPacket(PacketType.UpdateSelfLocation, SelfLocationData(this@roundRect.x.toInt(), this@roundRect.y.toInt(), 0))
+                                                            sendPacket(PacketType.UpdateSelfLocation, SelfLocationData(selfX.value, selfY.value, 0))
                                                         }
                                                     }
                                                 }
