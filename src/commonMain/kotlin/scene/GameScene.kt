@@ -7,11 +7,16 @@ import com.github.cheatank.common.data.ConfigData
 import com.github.cheatank.common.data.EmptyPacketData
 import com.github.cheatank.common.data.IntData
 import com.github.cheatank.common.data.ShortData
+import com.soywiz.klock.seconds
 import com.soywiz.korge.scene.Scene
 import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.alignTopToBottomOf
 import com.soywiz.korge.view.centerOnStage
 import com.soywiz.korge.view.centerXOnStage
+import com.soywiz.korge.view.roundRect
 import com.soywiz.korge.view.text
+import com.soywiz.korge.view.tween.hide
+import com.soywiz.korge.view.tween.show
 import com.soywiz.korio.async.ObservableProperty
 import com.soywiz.korio.async.launchImmediately
 import exception.FailReceivePacketException
@@ -36,18 +41,24 @@ class GameScene(private val address: String) : Scene() {
         val time = ObservableProperty<Short>(-1)
         text("Waiting...", 48.0, Theme.Text) {
             centerOnStage()
-            isWait.observe {
-                textSize = if (it) 48.0 else 0.0
-            }
         }
-        text("${time.value}", 0.0, Theme.Text) {
+        val timer = text("", 36.0, Theme.Text) {
             centerXOnStage()
             time.observe {
-                if (it < 0) {
-                    textSize = 0.0
-                } else {
-                    textSize = 36.0
-                    text = "$it"
+                text = if (it < 0) "" else "$it"
+            }
+        }
+        roundRect(1200.0, 600.0, 0.0, fill = Theme.BackGround, stroke = Theme.Text, strokeThickness = 1.0) {
+            alignTopToBottomOf(timer, 10.0)
+            centerXOnStage()
+            alpha = 0.0
+            isWait.observe {
+                launchImmediately {
+                    if (it) {
+                        hide(0.0.seconds)
+                    } else {
+                        show(0.0.seconds)
+                    }
                 }
             }
         }
