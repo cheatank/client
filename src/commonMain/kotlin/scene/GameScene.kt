@@ -146,17 +146,17 @@ class GameScene(private val address: String) : Scene() {
                 exception = ex
             } finally {
                 httpClient.close()
-                if (isWait.value.not()) {
-                    time.value = -1
-                    players.values.forEach { it.alpha = 0.0 }
-                    isWait.value = true
-                    launchImmediately {
+                time.value = -1
+                players.values.forEach { it.alpha = 0.0 }
+                isWait.value = true
+                launchImmediately {
+                    if (isWait.value.not()) {
                         delay(3000)
-                        if (exception != null) {
-                            sceneContainer.changeTo<TitleScene>(Message(exception))
-                        } else {
-                            sceneContainer.changeTo<TitleScene>()
-                        }
+                    }
+                    if (exception != null) {
+                        sceneContainer.changeTo<TitleScene>(Message(exception))
+                    } else {
+                        sceneContainer.changeTo<TitleScene>()
                     }
                 }
             }
