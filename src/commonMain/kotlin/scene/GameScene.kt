@@ -28,6 +28,7 @@ import com.soywiz.korio.async.ObservableProperty
 import com.soywiz.korio.async.launchImmediately
 import exception.FailReceivePacketException
 import exception.MismatchPacketVersionException
+import injects.CheatMode
 import injects.Message
 import io.ktor.client.HttpClient
 import io.ktor.client.features.websocket.WebSockets
@@ -43,7 +44,7 @@ import util.sendPacket
 /**
  * ゲーム画面
  */
-class GameScene(private val address: String) : Scene() {
+class GameScene(private val address: String, private val cheat: CheatMode) : Scene() {
     override suspend fun Container.sceneInit() {
         val isWait = ObservableProperty(true)
         val time = ObservableProperty<Short>(-1)

@@ -9,10 +9,10 @@ import scene.TitleScene
 object SceneModule : Module() {
     override val mainScene = TitleScene::class
     override val title = "CheaTank"
-    override val bgcolor = Theme.BackGround
+    override var bgcolor = Theme.BackGround
 
     override suspend fun AsyncInjector.configure() {
         mapPrototype { TitleScene(getOrNull()) }
-        mapPrototype { GameScene(get()) }
+        mapPrototype { GameScene(get(), get()) }
     }
 }

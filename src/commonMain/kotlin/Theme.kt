@@ -15,6 +15,11 @@ object Theme {
     val Text = Colors.BLACK
 
     /**
+     * チート使用時の文字色
+     */
+    val CheatText = Colors.ORANGERED
+
+    /**
      * エラーの文字色
      */
     val ErrorText = Colors.RED

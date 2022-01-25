@@ -18,8 +18,10 @@ import com.soywiz.korge.view.roundRect
 import com.soywiz.korge.view.size
 import com.soywiz.korge.view.text
 import com.soywiz.korim.format.readBitmap
+import com.soywiz.korio.async.ObservableProperty
 import com.soywiz.korio.async.launchImmediately
 import com.soywiz.korio.file.std.resourcesVfs
+import injects.CheatMode
 import injects.Message
 import injects.Message.Companion.Text
 
@@ -31,6 +33,7 @@ import injects.Message.Companion.Text
 class TitleScene(private val message: Message?) : Scene() {
     @OptIn(KorgeExperimental::class)
     override suspend fun Container.sceneInit() {
+        val cheatMode = ObservableProperty(false)
         var address = "ws://localhost:8080"
         message.Text(12.0).addTo(this).centerXOnStage()
         container {
@@ -41,14 +44,24 @@ class TitleScene(private val message: Message?) : Scene() {
                 size(128.0, 128.0)
                 centerXOnStage()
                 alignTopToBottomOf(title, 32.0)
+                onClick {
+                    cheatMode.value = cheatMode.value.not()
+                }
             }
             val startButton = roundRect(192.0, 64.0, 5.0, fill = Theme.BackGround, stroke = Theme.Text, strokeThickness = 1.0) {
                 centerXOnStage()
                 alignTopToBottomOf(logo, 32.0)
                 onClick {
-                    launchImmediately { sceneContainer.changeTo<GameScene>(address) }
+                    launchImmediately { sceneContainer.changeTo<GameScene>(address, CheatMode.from(cheatMode.value)) }
                 }
-                text("Play", 32.0, Theme.Text).centerOn(this)
+                val playText = text("Play", 32.0, Theme.Text) {
+                    centerOn(this@roundRect)
+                }
+                cheatMode.observe {
+                    val color = if (it) Theme.CheatText else Theme.Text
+                    stroke = color
+                    playText.color = color
+                }
             }
             uiTextInput(
                 address,
