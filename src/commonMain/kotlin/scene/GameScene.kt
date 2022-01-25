@@ -82,7 +82,6 @@ class GameScene(private val address: String) : Scene() {
                     isWait.value = false
                     id = gameData.id
                     time.value = gameData.timeLimit
-                    waitTitle.text = "Draw"
                     for (frame in incoming) {
                         when (frame) {
                             is Frame.Binary -> {
@@ -91,6 +90,14 @@ class GameScene(private val address: String) : Scene() {
                                     PacketType.Countdown.id -> {
                                         val data = packet.toPacket(PacketType.Countdown)?.data as? ShortData ?: continue
                                         time.value = data.short
+                                    }
+                                    PacketType.EndGame.id -> {
+                                        val data = packet.toPacket(PacketType.EndGame)?.data as? ShortData ?: continue
+                                        waitTitle.text = when (data.short) {
+                                            (-1).toShort() -> "Draw"
+                                            id -> "You Win"
+                                            else -> "You Lose"
+                                        }
                                     }
                                 }
                             }
