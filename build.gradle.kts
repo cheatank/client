@@ -33,7 +33,7 @@ kotlin {
 			}
 
 			dependencies {
-				implementation("com.github.cheatank:common:1.0.0-SNAPSHOT")
+				implementation("com.github.cheatank:common:1.0.0")
 				implementation("io.ktor:ktor-client-core:1.6.7")
 			}
 		}
